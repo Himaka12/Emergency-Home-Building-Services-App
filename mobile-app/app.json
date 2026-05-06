@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Service Provider",
+    "slug": "service-provider-mobile-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.serviceprovider.mobileapp"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
