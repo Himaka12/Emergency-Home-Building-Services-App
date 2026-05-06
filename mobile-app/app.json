@@ -3,8 +3,10 @@
     "name": "Service Provider",
     "slug": "service-provider-mobile-app",
     "version": "1.0.0",
+    "sdkVersion": "55.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "newArchEnabled": true,
     "splash": {
       "backgroundColor": "#ffffff"
     },

@@ -5,7 +5,7 @@ Local-first MERN + React Native monorepo for a home and building services platfo
 ## Apps
 
 - `backend` - Node.js, Express.js, MongoDB, Mongoose API.
-- `mobile-app` - Expo React Native app for customers and workers.
+- `mobile-app` - Expo SDK 55 React Native app for customers and workers.
 - `admin-dashboard` - React web dashboard for admins.
 - `docs` - Project, API, database, and user-flow documentation.
 
