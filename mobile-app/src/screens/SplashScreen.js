@@ -8,7 +8,7 @@ const SPLASH_DURATION_MS = 2000;
 const SplashScreen = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace('Home');
+      navigation.replace('OnboardingFirst');
     }, SPLASH_DURATION_MS);
 
     return () => clearTimeout(timer);
