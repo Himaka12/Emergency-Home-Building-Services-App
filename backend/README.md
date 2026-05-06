@@ -16,6 +16,16 @@ API base URL:
 http://localhost:5000/api
 ```
 
+## MongoDB Atlas DNS
+
+Some local routers and mobile hotspots fail MongoDB Atlas `mongodb+srv` DNS lookups. This project supports a DNS override through:
+
+```env
+DNS_SERVERS=8.8.8.8,1.1.1.1
+```
+
+Keep this in `backend/.env` if you see errors like `querySrv ECONNREFUSED`.
+
 ## First Admin User
 
 Edit `backend/.env`, then run:
@@ -44,3 +54,15 @@ The script creates or updates the admin user using the `ADMIN_*` values in `.env
 - Role authorization is enforced in middleware.
 - Uploaded files will be stored in `uploads` during local development.
 - Cloudinary and Expo Push Notifications can be added later without changing the main folder structure.
+
+## Windows Path Note
+
+This project is currently inside a folder path that contains `&`. Some Windows `.cmd` shims in `node_modules/.bin` break on that path.
+
+Use the npm scripts in this project instead of calling local binaries directly:
+
+```powershell
+npm run dev
+```
+
+The `dev` script calls Nodemon through Node directly, so it avoids the broken `.cmd` path.

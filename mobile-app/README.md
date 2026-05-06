@@ -9,19 +9,26 @@ This app is configured for Expo SDK 55.
 ```powershell
 npm install
 Copy-Item .env.example .env
+npm run expo:fix
 npm start
 ```
 
-SDK 55 requires Node.js `20.19.4` or newer. After installing dependencies, you can check versions with:
+SDK 55 requires Node.js `20.19.4` or newer.
+
+## Windows Path Note
+
+This project is currently inside a folder path that contains `&`. On Windows, `npx expo ...` can break because the generated Expo `.cmd` file does not handle that path safely.
+
+Use these npm scripts instead:
 
 ```powershell
-npx expo --version
-npx expo-doctor
+npm run expo:fix
+npm start
 ```
 
 ## Expo Go SDK 55 Note
 
-Expo SDK 55 uses React Native `0.83.2` and React `19.2.0`. During the SDK 55 release transition, Expo Go from the app stores may not always match SDK 55 immediately. If Expo Go complains about SDK mismatch, install/run the SDK 55-compatible Expo Go through Expo CLI or use a development build.
+Expo SDK 55 uses React Native `0.83.6` and React `19.2.0`. During the SDK 55 release transition, Expo Go from the app stores may not always match SDK 55 immediately. If Expo Go complains about SDK mismatch, install/run the SDK 55-compatible Expo Go through Expo CLI or use a development build.
 
 ## API URL
 

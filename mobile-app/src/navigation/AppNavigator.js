@@ -5,7 +5,11 @@ import CustomerNavigator from './CustomerNavigator';
 import WorkerNavigator from './WorkerNavigator';
 
 const AppNavigator = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { initializing, isAuthenticated, user } = useAuth();
+
+  if (initializing) {
+    return null;
+  }
 
   if (!isAuthenticated) {
     return <AuthNavigator />;

@@ -42,6 +42,7 @@ Mobile app:
 ```powershell
 cd mobile-app
 npm install
+npm run expo:fix
 npm start
 ```
 
@@ -69,3 +70,20 @@ The seed values are read from `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PHONE`, and `A
 Do not commit `.env`, `node_modules`, uploaded files, build folders, logs, or local IDE files.
 
 Do commit `.env.example`, source code, `package.json`, `package-lock.json` after install, docs, README files, and `backend/uploads/.gitkeep`.
+
+## Windows Path Note
+
+The current project path contains `&`. On Windows, some `node_modules/.bin/*.cmd` files can break on that character.
+
+Use the provided npm scripts:
+
+```powershell
+cd backend
+npm run dev
+```
+
+```powershell
+cd mobile-app
+npm run expo:fix
+npm start
+```

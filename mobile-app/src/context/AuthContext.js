@@ -7,12 +7,14 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
     const bootstrapAuth = async () => {
       const token = await getToken();
 
       if (!token) {
+        setInitializing(false);
         return;
       }
 
@@ -21,6 +23,8 @@ export const AuthProvider = ({ children }) => {
         setUser(data.user);
       } catch (error) {
         await removeToken();
+      } finally {
+        setInitializing(false);
       }
     };
 
@@ -62,12 +66,13 @@ export const AuthProvider = ({ children }) => {
     () => ({
       user,
       loading,
+      initializing,
       isAuthenticated: Boolean(user),
       login,
       register,
       logout
     }),
-    [user, loading]
+    [user, loading, initializing]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

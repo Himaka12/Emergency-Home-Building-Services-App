@@ -3,6 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
 
+const env = require('./config/env');
 const adminRoutes = require('./routes/adminRoutes');
 const authRoutes = require('./routes/authRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
@@ -17,14 +18,14 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || '*',
+    origin: env.clientUrl,
     credentials: true
   })
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-if (process.env.NODE_ENV !== 'production') {
+if (env.nodeEnv !== 'production') {
   app.use(morgan('dev'));
 }
 

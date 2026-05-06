@@ -1,28 +1,24 @@
-require('dotenv').config();
-
 const connectDB = require('../config/db');
+const env = require('../config/env');
 const User = require('../models/User');
 
 const seedAdmin = async () => {
   await connectDB();
 
-  const adminEmail = process.env.ADMIN_EMAIL;
-  const adminPassword = process.env.ADMIN_PASSWORD;
-
-  if (!adminEmail || !adminPassword) {
+  if (!env.admin.email || !env.admin.password) {
     throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD are required in .env');
   }
 
   const adminData = {
-    name: process.env.ADMIN_NAME || 'Local Admin',
-    email: adminEmail,
-    phone: process.env.ADMIN_PHONE || '0000000000',
-    password: adminPassword,
+    name: env.admin.name,
+    email: env.admin.email,
+    phone: env.admin.phone,
+    password: env.admin.password,
     role: 'admin',
     isActive: true
   };
 
-  const existingAdmin = await User.findOne({ email: adminEmail }).select('+password');
+  const existingAdmin = await User.findOne({ email: env.admin.email }).select('+password');
 
   if (existingAdmin) {
     existingAdmin.name = adminData.name;
@@ -31,12 +27,12 @@ const seedAdmin = async () => {
     existingAdmin.role = 'admin';
     existingAdmin.isActive = true;
     await existingAdmin.save();
-    console.log(`Admin user updated: ${adminEmail}`);
+    console.log(`Admin user updated: ${env.admin.email}`);
     return;
   }
 
   await User.create(adminData);
-  console.log(`Admin user created: ${adminEmail}`);
+  console.log(`Admin user created: ${env.admin.email}`);
 };
 
 seedAdmin()

@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { getCurrentUser, loginAdmin } from '../api/authApi.js';
 import { ROLES } from '../constants/roles.js';
 import { getStoredToken, removeToken, storeToken } from '../services/tokenService.js';
@@ -9,6 +9,39 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(getStoredToken());
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
+
+  const logout = () => {
+    removeToken();
+    setToken(null);
+    setUser(null);
+  };
+
+  useEffect(() => {
+    const bootstrapAuth = async () => {
+      if (!getStoredToken()) {
+        setInitializing(false);
+        return;
+      }
+
+      try {
+        const data = await getCurrentUser();
+
+        if (data.user.role !== ROLES.ADMIN) {
+          logout();
+          return;
+        }
+
+        setUser(data.user);
+      } catch (error) {
+        logout();
+      } finally {
+        setInitializing(false);
+      }
+    };
+
+    bootstrapAuth();
+  }, []);
 
   const login = async (credentials) => {
     setLoading(true);
@@ -38,23 +71,18 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   };
 
-  const logout = () => {
-    removeToken();
-    setToken(null);
-    setUser(null);
-  };
-
   const value = useMemo(
     () => ({
       token,
       user,
       loading,
-      isAuthenticated: Boolean(token),
+      initializing,
+      isAuthenticated: Boolean(token && user),
       login,
       logout,
       loadCurrentUser
     }),
-    [token, user, loading]
+    [token, user, loading, initializing]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
