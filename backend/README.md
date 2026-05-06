@@ -1,13 +1,56 @@
 # Backend API
 
-Node.js, Express.js, MongoDB, and Mongoose backend for the mobile app and admin dashboard.
+Node.js, Express.js, MongoDB, and Mongoose backend.
 
 ## Setup
 
 ```powershell
 npm install
 Copy-Item .env.example .env
+```
+
+Update `.env` before starting the backend.
+
+Required values:
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRES_IN=7d
+CLIENT_URL=http://localhost:3000
+ADMIN_NAME=Local Admin
+ADMIN_EMAIL=admin@example.com
+ADMIN_PHONE=0700000000
+ADMIN_PASSWORD=Admin@12345
+DNS_SERVERS=8.8.8.8,1.1.1.1
+```
+
+## Create First Admin User
+
+Run this after updating `.env`:
+
+```powershell
+npm run seed:admin
+```
+
+This creates or updates the admin user using:
+
+```env
+ADMIN_EMAIL
+ADMIN_PASSWORD
+```
+
+## Start Backend
+
+```powershell
 npm run dev
+```
+
+Backend URL:
+
+```text
+http://localhost:5000
 ```
 
 API base URL:
@@ -16,25 +59,19 @@ API base URL:
 http://localhost:5000/api
 ```
 
-## MongoDB Atlas DNS
+Health check:
 
-Some local routers and mobile hotspots fail MongoDB Atlas `mongodb+srv` DNS lookups. This project supports a DNS override through:
-
-```env
-DNS_SERVERS=8.8.8.8,1.1.1.1
+```text
+http://localhost:5000/health
 ```
 
-Keep this in `backend/.env` if you see errors like `querySrv ECONNREFUSED`.
-
-## First Admin User
-
-Edit `backend/.env`, then run:
+## Available Scripts
 
 ```powershell
+npm run dev
+npm start
 npm run seed:admin
 ```
-
-The script creates or updates the admin user using the `ADMIN_*` values in `.env`.
 
 ## Main Route Groups
 
@@ -47,22 +84,10 @@ The script creates or updates the admin user using the `ADMIN_*` values in `.env
 - `/api/complaints`
 - `/api/notifications`
 
-## Notes
+## MongoDB Atlas Note
 
-- Passwords are hashed with bcrypt before saving.
-- JWT is used for protected routes.
-- Role authorization is enforced in middleware.
-- Uploaded files will be stored in `uploads` during local development.
-- Cloudinary and Expo Push Notifications can be added later without changing the main folder structure.
+If MongoDB Atlas gives DNS errors such as `querySrv ECONNREFUSED`, keep this in `.env`:
 
-## Windows Path Note
-
-This project is currently inside a folder path that contains `&`. Some Windows `.cmd` shims in `node_modules/.bin` break on that path.
-
-Use the npm scripts in this project instead of calling local binaries directly:
-
-```powershell
-npm run dev
+```env
+DNS_SERVERS=8.8.8.8,1.1.1.1
 ```
-
-The `dev` script calls Nodemon through Node directly, so it avoids the broken `.cmd` path.

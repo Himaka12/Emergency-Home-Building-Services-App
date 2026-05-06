@@ -1,12 +1,25 @@
 # Admin Dashboard
 
-React dashboard for admins. Customers and workers do not use this app.
+React dashboard for admins.
 
 ## Setup
 
 ```powershell
 npm install
 Copy-Item .env.example .env
+```
+
+Check `.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
+```
+
+## Start Admin Dashboard
+
+Start the backend first, then run:
+
+```powershell
 npm run dev
 ```
 
@@ -16,19 +29,31 @@ Local URL:
 http://localhost:3000
 ```
 
-## Current MVP Pages
+## Admin Login
 
-- Admin login
-- Dashboard summary
+Before logging in, create the admin user from the backend folder:
+
+```powershell
+cd ../backend
+npm run seed:admin
+```
+
+Then login using the admin email and password from `backend/.env`.
+
+## Available Scripts
+
+```powershell
+npm run dev
+npm run build
+npm run preview
+```
+
+## Pages
+
+- Login
+- Dashboard
 - Bookings
 - Workers
 - Customers
 - Service categories
 - Complaints
-
-## Notes
-
-- API calls are centralized in `src/api`.
-- Admin auth state is managed in `src/context/AuthContext.jsx`.
-- Protected routes prevent non-admin users from viewing dashboard pages.
-- Styling is intentionally simple until backend workflows are tested.

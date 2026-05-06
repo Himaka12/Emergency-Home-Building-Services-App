@@ -1,8 +1,11 @@
 # Mobile App
 
-Expo React Native app shared by customers and workers.
+Expo SDK 55 React Native app for customers and workers.
 
-This app is configured for Expo SDK 55.
+## Requirements
+
+- Node.js `20.19.4` or newer
+- Expo Go compatible with SDK 55, or an Expo development build
 
 ## Setup
 
@@ -10,54 +13,47 @@ This app is configured for Expo SDK 55.
 npm install
 Copy-Item .env.example .env
 npm run expo:fix
-npm start
 ```
 
-SDK 55 requires Node.js `20.19.4` or newer.
+## Configure API URL
 
-## Windows Path Note
+For Android emulator:
 
-This project is currently inside a folder path that contains `&`. On Windows, `npx expo ...` can break because the generated Expo `.cmd` file does not handle that path safely.
+```env
+EXPO_PUBLIC_API_URL=http://10.0.2.2:5000/api
+```
 
-Use these npm scripts instead:
+For a real phone on the same Wi-Fi network:
+
+```env
+EXPO_PUBLIC_API_URL=http://YOUR_LOCAL_IP:5000/api
+```
+
+After changing `.env`, restart Expo.
+
+## Start Mobile App
+
+Start the backend first, then run:
 
 ```powershell
-npm run expo:fix
 npm start
 ```
 
-## Expo Go SDK 55 Note
+Expo will show the QR code and emulator options.
 
-Expo SDK 55 uses React Native `0.83.6` and React `19.2.0`. During the SDK 55 release transition, Expo Go from the app stores may not always match SDK 55 immediately. If Expo Go complains about SDK mismatch, install/run the SDK 55-compatible Expo Go through Expo CLI or use a development build.
+## Available Scripts
 
-## API URL
-
-Android emulator:
-
-```text
-http://10.0.2.2:5000/api
+```powershell
+npm start
+npm run android
+npm run ios
+npm run web
+npm run expo:fix
 ```
 
-Physical mobile device:
+## Notes
 
-```text
-http://YOUR_LOCAL_IP:5000/api
-```
-
-Use `EXPO_PUBLIC_API_URL` in `.env`. Do not hardcode API URLs inside screens.
-
-## Current Structure
-
-- `src/api` - Axios client and API methods.
-- `src/context` - Auth state.
-- `src/navigation` - Auth, customer, worker, and root navigators.
-- `src/screens` - Role-based screen placeholders.
-- `src/storage` - Token storage helper.
-- `src/constants` - Roles and booking statuses.
-
-## Later Additions
-
-- Image picker and local upload flow.
-- Expo Push Notifications registration.
-- Stronger form validation.
-- More complete booking and worker workflows.
+- Do not hardcode API URLs inside screens.
+- API requests are configured in `src/api/apiClient.js`.
+- Auth state is managed in `src/context/AuthContext.js`.
+- Navigation is role-based for customer and worker users.
