@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Service Provider",
+    "name": "Home Guard",
     "slug": "service-provider-mobile-app",
     "version": "1.0.0",
     "sdkVersion": "55.0.0",
@@ -8,16 +8,28 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "backgroundColor": "#ffffff"
+      "image": "./src/assets/images/home-guard-logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "splash": {
+        "image": "./src/assets/images/home-guard-logo.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#000000"
+      }
     },
     "android": {
-      "package": "com.serviceprovider.mobileapp"
+      "package": "com.serviceprovider.mobileapp",
+      "splash": {
+        "image": "./src/assets/images/home-guard-logo.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#000000"
+      }
     },
     "web": {
       "bundler": "metro"
