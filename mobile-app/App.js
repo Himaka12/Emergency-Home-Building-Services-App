@@ -19,15 +19,36 @@ export default function App() {
           initialRouteName="Splash"
           screenOptions={{
             headerShown: false,
-            animation: 'none',
-            contentStyle: { backgroundColor: '#000000' }
+            contentStyle: { backgroundColor: '#ffffff' }
           }}
         >
-          <RootStack.Screen name="Splash" component={SplashScreen} />
-          <RootStack.Screen name="OnboardingFirst" component={OnboardingFirstScreen} />
-          <RootStack.Screen name="OnboardingSecond" component={OnboardingSecondScreen} />
-          <RootStack.Screen name="OnboardingThird" component={OnboardingThirdScreen} />
-          <RootStack.Screen name="Home" component={AppNavigator} />
+          <RootStack.Screen
+            name="Splash"
+            component={SplashScreen}
+            options={{
+              animation: 'none',
+              contentStyle: { backgroundColor: '#000000' }
+            }}
+          />
+          <RootStack.Group
+            screenOptions={{
+              animation: 'slide_from_right',
+              animationDuration: 320,
+              gestureEnabled: true,
+              fullScreenGestureEnabled: true
+            }}
+          >
+            <RootStack.Screen name="OnboardingFirst" component={OnboardingFirstScreen} />
+            <RootStack.Screen name="OnboardingSecond" component={OnboardingSecondScreen} />
+            <RootStack.Screen name="OnboardingThird" component={OnboardingThirdScreen} />
+          </RootStack.Group>
+          <RootStack.Screen
+            name="Home"
+            component={AppNavigator}
+            options={{
+              animation: 'fade'
+            }}
+          />
         </RootStack.Navigator>
       </NavigationContainer>
     </AuthProvider>
