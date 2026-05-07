@@ -3,23 +3,19 @@ import {
   ActivityIndicator,
   Alert,
   Animated,
-  Image,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
-  TextInput,
   View
 } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import KeyboardAwareScrollView from '../../components/KeyboardAwareScrollView';
+import AuthSheet from '../../components/auth/AuthSheet';
+import AuthTextInput from '../../components/auth/AuthTextInput';
+import { ROLES } from '../../constants/roles';
 import { useAuth } from '../../context/AuthContext';
 
-const logo = require('../../assets/images/home-guard-logo.png');
-
 const roleOptions = [
-  { label: 'Customer', value: 'customer' },
-  { label: 'Worker', value: 'worker' }
+  { label: 'Customer', value: ROLES.CUSTOMER },
+  { label: 'Worker', value: ROLES.WORKER }
 ];
 
 const RegisterScreen = ({ navigation }) => {
@@ -29,7 +25,7 @@ const RegisterScreen = ({ navigation }) => {
     email: '',
     phone: '',
     password: '',
-    role: 'customer'
+    role: ROLES.CUSTOMER
   });
   const [selectorWidth, setSelectorWidth] = useState(0);
   const roleAnimation = useRef(new Animated.Value(0)).current;
@@ -43,7 +39,7 @@ const RegisterScreen = ({ navigation }) => {
 
   useEffect(() => {
     Animated.spring(roleAnimation, {
-      toValue: form.role === 'worker' ? 1 : 0,
+      toValue: form.role === ROLES.WORKER ? 1 : 0,
       useNativeDriver: true,
       friction: 8,
       tension: 90
@@ -66,8 +62,19 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   const handleRegister = async () => {
+    if (loading) {
+      return;
+    }
+
+    const payload = {
+      ...form,
+      name: form.name.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim()
+    };
+
     try {
-      await register(form);
+      await register(payload);
     } catch (error) {
       Alert.alert('Registration failed', error.response?.data?.message || 'Please check your details.');
     }
@@ -79,191 +86,117 @@ const RegisterScreen = ({ navigation }) => {
   });
 
   return (
-    <View style={styles.screen}>
-      <StatusBar style="dark" backgroundColor="#ffffff" />
-      <View style={styles.sheet}>
-        <SafeAreaView style={styles.safeArea}>
-          <KeyboardAwareScrollView
-            contentContainerStyle={styles.content}
-            keyboardOffset={24}
+    <AuthSheet title="Create account">
+      {({ scrollToFocusedInput }) => (
+        <>
+          <View
+            style={styles.roleSelector}
+            onLayout={(event) => setSelectorWidth(event.nativeEvent.layout.width)}
           >
-            {({ scrollToFocusedInput }) => (
-              <>
-                <View style={styles.handle} />
-                <Image source={logo} style={styles.logo} resizeMode="contain" />
-                <Text style={styles.title}>Create account</Text>
-
-                <View
-                  style={styles.roleSelector}
-                  onLayout={(event) => setSelectorWidth(event.nativeEvent.layout.width)}
-                >
-                  {selectorWidth > 0 && (
-                    <Animated.View
-                      pointerEvents="none"
-                      style={[
-                        styles.roleIndicator,
-                        {
-                          width: selectorWidth / 2 - 6,
-                          transform: [
-                            { translateX: indicatorTranslateX },
-                            { scale: scaleAnimation }
-                          ]
-                        }
-                      ]}
-                    />
-                  )}
-                  {roleOptions.map((option) => {
-                    const isSelected = form.role === option.value;
-
-                    return (
-                      <Pressable
-                        key={option.value}
-                        accessibilityRole="button"
-                        accessibilityState={{ selected: isSelected }}
-                        onPress={() => selectRole(option.value)}
-                        style={styles.roleOption}
-                      >
-                        <Text style={[styles.roleText, isSelected && styles.selectedRoleText]}>
-                          {option.label}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-
-                <View style={styles.form}>
-                  <View style={styles.fieldGroup}>
-                    <Text style={styles.label}>Name</Text>
-                    <TextInput
-                      autoComplete="name"
-                      onChangeText={(value) => updateField('name', value)}
-                      onFocus={scrollToFocusedInput}
-                      placeholder="Your name"
-                      placeholderTextColor="#a4a9b6"
-                      style={styles.input}
-                      value={form.name}
-                    />
-                  </View>
-
-                  <View style={styles.fieldGroup}>
-                    <Text style={styles.label}>Email address</Text>
-                    <TextInput
-                      autoCapitalize="none"
-                      autoComplete="email"
-                      keyboardType="email-address"
-                      onChangeText={(value) => updateField('email', value)}
-                      onFocus={scrollToFocusedInput}
-                      placeholder="you@example.com"
-                      placeholderTextColor="#a4a9b6"
-                      style={styles.input}
-                      value={form.email}
-                    />
-                  </View>
-
-                  <View style={styles.fieldGroup}>
-                    <Text style={styles.label}>Phone</Text>
-                    <TextInput
-                      autoComplete="tel"
-                      keyboardType="phone-pad"
-                      onChangeText={(value) => updateField('phone', value)}
-                      onFocus={scrollToFocusedInput}
-                      placeholder="Phone number"
-                      placeholderTextColor="#a4a9b6"
-                      style={styles.input}
-                      value={form.phone}
-                    />
-                  </View>
-
-                  <View style={styles.fieldGroup}>
-                    <Text style={styles.label}>Password</Text>
-                    <TextInput
-                      autoComplete="new-password"
-                      onChangeText={(value) => updateField('password', value)}
-                      onFocus={scrollToFocusedInput}
-                      placeholder="Create password"
-                      placeholderTextColor="#a4a9b6"
-                      secureTextEntry
-                      style={styles.input}
-                      value={form.password}
-                    />
-                  </View>
-
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Register"
-                    disabled={loading}
-                    onPress={handleRegister}
-                    style={({ pressed }) => [
-                      styles.registerButton,
-                      pressed && styles.registerButtonPressed,
-                      loading && styles.disabledButton
-                    ]}
-                  >
-                    {loading ? (
-                      <ActivityIndicator color="#ffffff" />
-                    ) : (
-                      <Text style={styles.registerText}>Register</Text>
-                    )}
-                  </Pressable>
-                </View>
-
-                <View style={styles.loginRow}>
-                  <Text style={styles.loginPrompt}>Already have an account?</Text>
-                  <Pressable onPress={() => navigation.navigate('Login')} hitSlop={10}>
-                    <Text style={styles.loginLink}>Sign in</Text>
-                  </Pressable>
-                </View>
-              </>
+            {selectorWidth > 0 && (
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  styles.roleIndicator,
+                  {
+                    width: selectorWidth / 2 - 6,
+                    transform: [
+                      { translateX: indicatorTranslateX },
+                      { scale: scaleAnimation }
+                    ]
+                  }
+                ]}
+              />
             )}
-          </KeyboardAwareScrollView>
-        </SafeAreaView>
-      </View>
-    </View>
+            {roleOptions.map((option) => {
+              const isSelected = form.role === option.value;
+
+              return (
+                <Pressable
+                  key={option.value}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
+                  onPress={() => selectRole(option.value)}
+                  style={styles.roleOption}
+                >
+                  <Text style={[styles.roleText, isSelected && styles.selectedRoleText]}>
+                    {option.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          <View style={styles.form}>
+            <AuthTextInput
+              autoComplete="name"
+              label="Name"
+              onChangeText={(value) => updateField('name', value)}
+              onFocus={scrollToFocusedInput}
+              placeholder="Your name"
+              value={form.name}
+            />
+            <AuthTextInput
+              autoCapitalize="none"
+              autoComplete="email"
+              keyboardType="email-address"
+              label="Email address"
+              onChangeText={(value) => updateField('email', value)}
+              onFocus={scrollToFocusedInput}
+              placeholder="you@example.com"
+              value={form.email}
+            />
+            <AuthTextInput
+              autoComplete="tel"
+              keyboardType="phone-pad"
+              label="Phone"
+              onChangeText={(value) => updateField('phone', value)}
+              onFocus={scrollToFocusedInput}
+              placeholder="Phone number"
+              value={form.phone}
+            />
+            <AuthTextInput
+              autoComplete="new-password"
+              label="Password"
+              onChangeText={(value) => updateField('password', value)}
+              onFocus={scrollToFocusedInput}
+              placeholder="Create password"
+              secureTextEntry
+              value={form.password}
+            />
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Register"
+              disabled={loading}
+              onPress={handleRegister}
+              style={({ pressed }) => [
+                styles.registerButton,
+                pressed && styles.registerButtonPressed,
+                loading && styles.disabledButton
+              ]}
+            >
+              {loading ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text style={styles.registerText}>Register</Text>
+              )}
+            </Pressable>
+          </View>
+
+          <View style={styles.loginRow}>
+            <Text style={styles.loginPrompt}>Already have an account?</Text>
+            <Pressable onPress={() => navigation.navigate('Login')} hitSlop={10}>
+              <Text style={styles.loginLink}>Sign in</Text>
+            </Pressable>
+          </View>
+        </>
+      )}
+    </AuthSheet>
   );
 };
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: '#ffffff'
-  },
-  sheet: {
-    flex: 1,
-    borderTopLeftRadius: 38,
-    borderTopRightRadius: 38,
-    backgroundColor: '#ffffff',
-    overflow: 'hidden'
-  },
-  safeArea: {
-    flex: 1
-  },
-  content: {
-    flexGrow: 1,
-    paddingHorizontal: 26,
-    paddingTop: 26,
-    paddingBottom: 28
-  },
-  handle: {
-    alignSelf: 'center',
-    width: 54,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#e1e4ec'
-  },
-  logo: {
-    alignSelf: 'center',
-    width: 150,
-    height: 104,
-    marginTop: 34
-  },
-  title: {
-    marginTop: 24,
-    color: '#11172b',
-    fontSize: 35,
-    fontWeight: '900',
-    lineHeight: 42,
-    textAlign: 'center'
-  },
   roleSelector: {
     position: 'relative',
     flexDirection: 'row',
