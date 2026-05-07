@@ -6,7 +6,7 @@ export const registerUser = async (payload) => {
 };
 
 export const loginUser = async (payload) => {
-  const response = await apiClient.post('/auth/login', payload);
+  const response = await apiClient.post('/auth/login', payload, { timeout: 3000 });
   return response.data;
 };
 

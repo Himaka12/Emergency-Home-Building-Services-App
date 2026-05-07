@@ -67,6 +67,10 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const handleLogin = async () => {
+    if (loading) {
+      return;
+    }
+
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail && !password) {
