@@ -3,10 +3,19 @@ const { body } = require('express-validator');
 const registerValidation = [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Valid email is required'),
-  body('phone').trim().notEmpty().withMessage('Phone number is required'),
+  body('phone')
+    .trim()
+    .matches(/^\d{10}$/)
+    .withMessage('Mobile number must be 10 digits'),
   body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters'),
+    .isStrongPassword({
+      minLength: 8,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 1
+    })
+    .withMessage('Password must be at least 8 characters and include uppercase, lowercase, number, and symbol'),
   body('role')
     .optional()
     .isIn(['customer', 'worker'])

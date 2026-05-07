@@ -18,6 +18,32 @@ const roleOptions = [
   { label: 'Worker', value: ROLES.WORKER }
 ];
 
+const passwordRules = [
+  { label: '8 characters', test: (value) => value.length >= 8 },
+  { label: 'Uppercase', test: (value) => /[A-Z]/.test(value) },
+  { label: 'Lowercase', test: (value) => /[a-z]/.test(value) },
+  { label: 'Number', test: (value) => /\d/.test(value) },
+  { label: 'Symbol', test: (value) => /[^A-Za-z0-9]/.test(value) }
+];
+
+const getPasswordStrength = (password) => {
+  const passedRules = passwordRules.filter((rule) => rule.test(password)).length;
+
+  if (!password) {
+    return { color: '#e1e0ea', label: 'Password strength', progress: '0%' };
+  }
+
+  if (passedRules <= 2) {
+    return { color: '#dc2626', label: 'Weak', progress: '34%' };
+  }
+
+  if (passedRules <= 4) {
+    return { color: '#f59e0b', label: 'Medium', progress: '68%' };
+  }
+
+  return { color: '#16a34a', label: 'Strong', progress: '100%' };
+};
+
 const RegisterScreen = ({ navigation }) => {
   const { isAuthenticated, register, loading } = useAuth();
   const [form, setForm] = useState({
@@ -61,6 +87,26 @@ const RegisterScreen = ({ navigation }) => {
     }).start();
   };
 
+  const validateRegisterForm = (payload) => {
+    if (!payload.name || !payload.email || !payload.phone || !payload.password) {
+      return 'Fill all required fields.';
+    }
+
+    if (!payload.email.includes('@')) {
+      return 'Email must contain @.';
+    }
+
+    if (!/^\d{10}$/.test(payload.phone)) {
+      return 'Mobile number must be 10 digits.';
+    }
+
+    if (passwordRules.some((rule) => !rule.test(payload.password))) {
+      return 'Password does not meet requirements.';
+    }
+
+    return '';
+  };
+
   const handleRegister = async () => {
     if (loading) {
       return;
@@ -72,6 +118,12 @@ const RegisterScreen = ({ navigation }) => {
       email: form.email.trim(),
       phone: form.phone.trim()
     };
+    const validationMessage = validateRegisterForm(payload);
+
+    if (validationMessage) {
+      Alert.alert('Registration failed', validationMessage);
+      return;
+    }
 
     try {
       await register(payload);
@@ -84,6 +136,7 @@ const RegisterScreen = ({ navigation }) => {
     inputRange: [0, 1],
     outputRange: [0, selectorWidth / 2]
   });
+  const passwordStrength = getPasswordStrength(form.password);
 
   return (
     <AuthSheet title="Create account">
@@ -165,6 +218,45 @@ const RegisterScreen = ({ navigation }) => {
               value={form.password}
             />
 
+            <View style={styles.passwordStrength}>
+              <View style={styles.strengthHeader}>
+                <Text style={styles.strengthLabel}>Password strength</Text>
+                <Text style={[styles.strengthValue, { color: passwordStrength.color }]}>
+                  {passwordStrength.label}
+                </Text>
+              </View>
+              <View style={styles.strengthTrack}>
+                <View
+                  style={[
+                    styles.strengthFill,
+                    {
+                      backgroundColor: passwordStrength.color,
+                      width: passwordStrength.progress
+                    }
+                  ]}
+                />
+              </View>
+              <View style={styles.rules}>
+                {passwordRules.map((rule) => {
+                  const isPassed = rule.test(form.password);
+
+                  return (
+                    <View key={rule.label} style={styles.ruleItem}>
+                      <View
+                        style={[
+                          styles.ruleDot,
+                          isPassed && styles.passedRuleDot
+                        ]}
+                      />
+                      <Text style={[styles.ruleText, isPassed && styles.passedRuleText]}>
+                        {rule.label}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Register"
@@ -240,24 +332,66 @@ const styles = StyleSheet.create({
     marginTop: 24,
     gap: 18
   },
-  fieldGroup: {
+  passwordStrength: {
+    marginTop: -4,
     gap: 10
   },
-  label: {
-    color: '#11172b',
-    fontSize: 15,
+  strengthHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  strengthLabel: {
+    color: '#727b92',
+    fontSize: 13,
+    fontWeight: '800'
+  },
+  strengthValue: {
+    fontSize: 13,
     fontWeight: '900'
   },
-  input: {
-    minHeight: 60,
-    borderWidth: 2,
-    borderColor: '#e1e0ea',
-    borderRadius: 24,
-    paddingHorizontal: 20,
-    color: '#11172b',
-    fontSize: 18,
-    fontWeight: '700',
-    backgroundColor: '#ffffff'
+  strengthTrack: {
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: '#ececf2',
+    overflow: 'hidden'
+  },
+  strengthFill: {
+    height: '100%',
+    borderRadius: 4
+  },
+  rules: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8
+  },
+  ruleItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderRadius: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: '#f7f7fa'
+  },
+  ruleDot: {
+    width: 7,
+    height: 7,
+    borderWidth: 1,
+    borderColor: '#a4a9b6',
+    borderRadius: 4
+  },
+  passedRuleDot: {
+    borderColor: '#16a34a',
+    backgroundColor: '#16a34a'
+  },
+  ruleText: {
+    color: '#727b92',
+    fontSize: 12,
+    fontWeight: '800'
+  },
+  passedRuleText: {
+    color: '#11172b'
   },
   registerButton: {
     minHeight: 64,
