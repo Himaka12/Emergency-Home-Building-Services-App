@@ -4,7 +4,7 @@ const onboardingImage = require('../../assets/images/onboarding-service.png');
 
 const OnboardingThirdScreen = ({ navigation }) => {
   const goToLogin = () => {
-    navigation.replace('Home');
+    navigation.navigate('AuthModal');
   };
 
   return (

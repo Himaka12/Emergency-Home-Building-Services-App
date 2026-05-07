@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from './src/context/AuthContext';
 import AppNavigator from './src/navigation/AppNavigator';
+import AuthNavigator from './src/navigation/AuthNavigator';
 import OnboardingFirstScreen from './src/screens/onboarding/OnboardingFirstScreen';
 import OnboardingSecondScreen from './src/screens/onboarding/OnboardingSecondScreen';
 import OnboardingThirdScreen from './src/screens/onboarding/OnboardingThirdScreen';
@@ -47,6 +48,18 @@ export default function App() {
             component={AppNavigator}
             options={{
               animation: 'fade'
+            }}
+          />
+          <RootStack.Screen
+            name="AuthModal"
+            component={AuthNavigator}
+            options={{
+              animation: 'slide_from_bottom',
+              animationDuration: 320,
+              contentStyle: { backgroundColor: '#ffffff' },
+              gestureDirection: 'vertical',
+              gestureEnabled: true,
+              presentation: 'modal'
             }}
           />
         </RootStack.Navigator>
