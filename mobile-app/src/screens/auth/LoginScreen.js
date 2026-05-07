@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
+  Animated,
   Image,
   Pressable,
   SafeAreaView,
@@ -21,6 +21,9 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const toastAnimation = useRef(new Animated.Value(0)).current;
+  const toastTimer = useRef(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -28,17 +31,91 @@ const LoginScreen = ({ navigation }) => {
     }
   }, [isAuthenticated, navigation]);
 
-  const handleLogin = async () => {
-    try {
-      await login({ email, password });
-    } catch (error) {
-      Alert.alert('Login failed', error.response?.data?.message || 'Please check your credentials.');
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) {
+        clearTimeout(toastTimer.current);
+      }
+    };
+  }, []);
+
+  const showToast = (message) => {
+    if (toastTimer.current) {
+      clearTimeout(toastTimer.current);
     }
+
+    setToastMessage(message);
+    toastAnimation.setValue(0);
+    Animated.spring(toastAnimation, {
+      toValue: 1,
+      useNativeDriver: true,
+      friction: 8,
+      tension: 90
+    }).start();
+
+    toastTimer.current = setTimeout(() => {
+      Animated.timing(toastAnimation, {
+        toValue: 0,
+        duration: 180,
+        useNativeDriver: true
+      }).start(({ finished }) => {
+        if (finished) {
+          setToastMessage('');
+        }
+      });
+    }, 2600);
+  };
+
+  const handleLogin = async () => {
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail && !password) {
+      showToast('Enter email address and password.');
+      return;
+    }
+
+    if (!trimmedEmail) {
+      showToast('Enter your email address.');
+      return;
+    }
+
+    if (!password) {
+      showToast('Enter your password.');
+      return;
+    }
+
+    try {
+      await login({ email: trimmedEmail, password });
+    } catch (error) {
+      showToast('Wrong email or password.');
+    }
+  };
+
+  const toastStyle = {
+    opacity: toastAnimation,
+    transform: [
+      {
+        translateY: toastAnimation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [-8, 0]
+        })
+      }
+    ]
   };
 
   return (
     <View style={styles.screen}>
       <StatusBar style="dark" backgroundColor="#ffffff" />
+      {toastMessage ? (
+        <Animated.View
+          accessibilityLiveRegion="polite"
+          style={[styles.toast, toastStyle]}
+        >
+          <SafeAreaView style={styles.toastSafeArea}>
+            <Text style={styles.toastText}>{toastMessage}</Text>
+          </SafeAreaView>
+        </Animated.View>
+      ) : null}
 
       <View style={styles.sheet}>
         <SafeAreaView style={styles.safeArea}>
@@ -172,8 +249,40 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   form: {
-    marginTop: 34,
+    marginTop: 26,
     gap: 22
+  },
+  toast: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 20,
+    alignItems: 'center',
+    paddingHorizontal: 20
+  },
+  toastSafeArea: {
+    width: '82%',
+    minHeight: 42,
+    marginTop: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 22,
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    backgroundColor: '#dc2626',
+    shadowColor: '#dc2626',
+    shadowOpacity: 0.22,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    elevation: 8
+  },
+  toastText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '900',
+    lineHeight: 17,
+    textAlign: 'center'
   },
   fieldGroup: {
     gap: 10
