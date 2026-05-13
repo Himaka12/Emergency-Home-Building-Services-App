@@ -19,11 +19,7 @@ const roleOptions = [
 ];
 
 const passwordRules = [
-  { label: '8 characters', test: (value) => value.length >= 8 },
-  { label: 'Uppercase', test: (value) => /[A-Z]/.test(value) },
-  { label: 'Lowercase', test: (value) => /[a-z]/.test(value) },
-  { label: 'Number', test: (value) => /\d/.test(value) },
-  { label: 'Symbol', test: (value) => /[^A-Za-z0-9]/.test(value) }
+  { label: 'At least 8 characters', test: (value) => value.length >= 8 }
 ];
 
 const getPasswordStrength = (password) => {
@@ -76,6 +72,10 @@ const RegisterScreen = ({ navigation }) => {
     setForm((current) => ({ ...current, [name]: value }));
   };
 
+  const updatePhone = (value) => {
+    updateField('phone', value.replace(/\D/g, '').slice(0, 10));
+  };
+
   const selectRole = (role) => {
     updateField('role', role);
     scaleAnimation.setValue(0.97);
@@ -101,7 +101,7 @@ const RegisterScreen = ({ navigation }) => {
     }
 
     if (passwordRules.some((rule) => !rule.test(payload.password))) {
-      return 'Password does not meet requirements.';
+      return 'Password must be at least 8 characters.';
     }
 
     return '';
@@ -203,7 +203,8 @@ const RegisterScreen = ({ navigation }) => {
               autoComplete="tel"
               keyboardType="phone-pad"
               label="Phone"
-              onChangeText={(value) => updateField('phone', value)}
+              maxLength={10}
+              onChangeText={updatePhone}
               onFocus={scrollToFocusedInput}
               placeholder="Phone number"
               value={form.phone}
