@@ -531,7 +531,7 @@ const WorkerProfileScreen = () => {
 
       <Modal transparent animationType="fade" visible={birthPickerVisible}>
         <View style={styles.modalOverlay}>
-          <View style={styles.birthPopup}>
+          <View style={styles.birthSheet}>
             <View style={styles.birthHeader}>
               <View>
                 <Text style={styles.birthTitle}>Date of Birth</Text>
@@ -807,8 +807,29 @@ const styles = StyleSheet.create({
   wheel: {
     height: 176
   },
+  wheelFrame: {
+    position: 'relative',
+    height: WHEEL_ITEM_HEIGHT * WHEEL_VISIBLE_ITEMS,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    borderRadius: 8,
+    backgroundColor: '#ffffff'
+  },
+  wheelSelectionFrame: {
+    position: 'absolute',
+    top: WHEEL_ITEM_HEIGHT * 2,
+    left: 8,
+    right: 8,
+    height: WHEEL_ITEM_HEIGHT,
+    borderRadius: 8,
+    backgroundColor: '#fff3e8'
+  },
+  wheelContent: {
+    paddingVertical: WHEEL_ITEM_HEIGHT * 2
+  },
   wheelOption: {
-    minHeight: 42,
+    height: WHEEL_ITEM_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 8
