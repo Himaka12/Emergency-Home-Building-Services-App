@@ -2,23 +2,29 @@ const asyncHandler = require('../utils/asyncHandler');
 const generateToken = require('../utils/generateToken');
 const User = require('../models/User');
 
+const serializeUser = (user) => ({
+  id: user._id,
+  name: user.name,
+  email: user.email,
+  phone: user.phone,
+  profileImage: user.profileImage,
+  role: user.role,
+  isActive: user.isActive
+});
+
 const sendAuthResponse = (res, statusCode, user) => {
   res.status(statusCode).json({
     success: true,
     token: generateToken(user._id),
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-      isActive: user.isActive
-    }
+    user: serializeUser(user)
   });
 };
 
+const getPublicUploadUrl = (req, filename) => `${req.protocol}://${req.get('host')}/uploads/${filename}`;
+
 const register = asyncHandler(async (req, res) => {
-  const { name, email, phone, password, role = 'customer' } = req.body;
+  const { name, phone, password, role = 'customer' } = req.body;
+  const email = req.body.email.trim().toLowerCase();
 
   if (role === 'admin') {
     res.status(400);
@@ -44,7 +50,8 @@ const register = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { password } = req.body;
+  const email = req.body.email.trim().toLowerCase();
   const user = await User.findOne({ email }).select('+password');
 
   if (!user || !(await user.matchPassword(password))) {
@@ -63,12 +70,55 @@ const login = asyncHandler(async (req, res) => {
 const getMe = asyncHandler(async (req, res) => {
   res.json({
     success: true,
-    user: req.user
+    user: serializeUser(req.user)
   });
+});
+
+const updateMe = asyncHandler(async (req, res) => {
+  const { name, phone } = req.body;
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  if (typeof name === 'string') {
+    user.name = name.trim();
+  }
+
+  if (typeof phone === 'string') {
+    user.phone = phone.trim();
+  }
+
+  await user.save();
+
+  sendAuthResponse(res, 200, user);
+});
+
+const updateProfileImage = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    res.status(400);
+    throw new Error('Profile image is required');
+  }
+
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  user.profileImage = getPublicUploadUrl(req, req.file.filename);
+  await user.save();
+
+  sendAuthResponse(res, 200, user);
 });
 
 module.exports = {
   register,
   login,
-  getMe
+  getMe,
+  updateMe,
+  updateProfileImage
 };
