@@ -21,7 +21,17 @@ const loginValidation = [
   body('password').notEmpty().withMessage('Password is required')
 ];
 
+const updateMeValidation = [
+  body('name').optional().trim().notEmpty().withMessage('Name is required'),
+  body('phone')
+    .optional()
+    .trim()
+    .matches(/^\d{10}$/)
+    .withMessage('Mobile number must be 10 digits')
+];
+
 module.exports = {
   registerValidation,
-  loginValidation
+  loginValidation,
+  updateMeValidation
 };
