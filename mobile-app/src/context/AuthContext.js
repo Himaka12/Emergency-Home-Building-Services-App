@@ -1,5 +1,11 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { getCurrentUser, loginUser, registerUser } from '../api/authApi';
+import {
+  getCurrentUser,
+  loginUser,
+  registerUser,
+  updateCurrentUser,
+  updateProfileImage
+} from '../api/authApi';
 import { getToken, removeToken, saveToken } from '../storage/tokenStorage';
 
 const AuthContext = createContext(null);
@@ -57,6 +63,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const saveProfileImage = async (image) => {
+    setLoading(true);
+    try {
+      const data = await updateProfileImage(image);
+      return applyAuthResponse(data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateProfile = async (payload) => {
+    setLoading(true);
+    try {
+      const data = await updateCurrentUser(payload);
+      return applyAuthResponse(data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = async () => {
     await removeToken();
     setUser(null);
@@ -70,6 +96,8 @@ export const AuthProvider = ({ children }) => {
       isAuthenticated: Boolean(user),
       login,
       register,
+      updateProfile,
+      saveProfileImage,
       logout
     }),
     [user, loading, initializing]
