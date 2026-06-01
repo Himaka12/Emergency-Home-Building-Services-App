@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Animated,
   Pressable,
   StyleSheet,
   Text,
@@ -12,56 +11,20 @@ import AuthSheet from '../../components/auth/AuthSheet';
 import AuthTextInput, { authInputStyles } from '../../components/auth/AuthTextInput';
 import ToastMessage from '../../components/auth/ToastMessage';
 import { useAuth } from '../../context/AuthContext';
+import useToast from '../../hooks/useToast';
 
 const LoginScreen = ({ navigation }) => {
   const { isAuthenticated, login, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const toastAnimation = useRef(new Animated.Value(0)).current;
-  const toastTimer = useRef(null);
+  const { showToast, toastProps } = useToast();
 
   useEffect(() => {
     if (isAuthenticated) {
       navigation.getParent()?.replace('Home');
     }
   }, [isAuthenticated, navigation]);
-
-  useEffect(() => {
-    return () => {
-      if (toastTimer.current) {
-        clearTimeout(toastTimer.current);
-      }
-    };
-  }, []);
-
-  const showToast = (message) => {
-    if (toastTimer.current) {
-      clearTimeout(toastTimer.current);
-    }
-
-    setToastMessage(message);
-    toastAnimation.setValue(0);
-    Animated.spring(toastAnimation, {
-      toValue: 1,
-      useNativeDriver: true,
-      friction: 8,
-      tension: 90
-    }).start();
-
-    toastTimer.current = setTimeout(() => {
-      Animated.timing(toastAnimation, {
-        toValue: 0,
-        duration: 180,
-        useNativeDriver: true
-      }).start(({ finished }) => {
-        if (finished) {
-          setToastMessage('');
-        }
-      });
-    }, 2600);
-  };
 
   const handleLogin = async () => {
     if (loading) {
@@ -88,25 +51,23 @@ const LoginScreen = ({ navigation }) => {
     try {
       await login({ email: trimmedEmail, password });
     } catch (error) {
-      showToast('Wrong email or password.');
-    }
-  };
-
-  const toastStyle = {
-    opacity: toastAnimation,
-    transform: [
-      {
-        translateY: toastAnimation.interpolate({
-          inputRange: [0, 1],
-          outputRange: [-8, 0]
-        })
+      if (!error.response) {
+        showToast('Cannot reach server. Check backend and API URL.');
+        return;
       }
-    ]
+
+      if (error.response.status === 401) {
+        showToast('Wrong email or password.');
+        return;
+      }
+
+      showToast(error.response.data?.message || 'Login failed. Please try again.');
+    }
   };
 
   return (
     <View style={styles.screen}>
-      <ToastMessage animatedStyle={toastStyle} message={toastMessage} />
+      <ToastMessage {...toastProps} />
       <AuthSheet title="Log in or sign up">
         {({ scrollToFocusedInput }) => (
           <>
